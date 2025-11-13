@@ -1,16 +1,34 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import './index.css'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import "./index.css";
 
-import Wellcome from "@/pages/Wellcome.jsx"
+import { AuthProvider, useAuth } from "../src/context/AuthContext.jsx";
+import { TransactionProvider } from "../src/context/TransactionContext.jsx";
 
-createRoot(document.getElementById('root')).render(
+import Login from "./Login.jsx";
+import Home from "./Home.jsx";
+import Input from "./components/atoms/Input.jsx";
+import Create from "./Create.jsx";
+
+const PrivateRoute = ({ children }) => {
+  const { isLoggedIn } = useAuth();
+  return isLoggedIn ? children : <Navigate to="/" replace />;
+};
+
+createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Wellcome />} />
-      </Routes>
+      <AuthProvider>
+        <TransactionProvider>
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
+            <Route path="/input" element={<PrivateRoute><Input /></PrivateRoute>} />
+            <Route path="/create" element={<PrivateRoute><Create /></PrivateRoute>} />
+          </Routes>
+        </TransactionProvider>
+      </AuthProvider>
     </BrowserRouter>
   </StrictMode>
-)
+);
